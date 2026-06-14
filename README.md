@@ -19,6 +19,9 @@ Aspects pallets are now placed on both sides of the research table.
 They split between pallets based on their affinities to order and entropy.
 Sorting is based of aspect complexity (products are always below components).
 
+Ordering is configurable to instead be alphabetical like vanilla thaumcraft, either filling the
+left side entirely, or putting the first half of aspects on the left, and second half on the right.
+
 ### Aspect combination
 Aspect combination area was replaced by drag & drop.
 You can also combine aspects while dragging by right-clicking, this way you don't stop dragging.

@@ -8,6 +8,8 @@ import elan.tweaks.common.gui.dto.Vector2D
 import elan.tweaks.common.gui.layout.grid.GridLayout
 import elan.tweaks.common.gui.layout.grid.GridLayoutDynamicListAdapter
 import elan.tweaks.common.gui.layout.hex.HexLayout
+import elan.tweaks.config.AspectSortingOptions
+import elan.tweaks.config.ResearchTweaksConfig
 import elan.tweaks.thaumcraft.research.frontend.integration.table.TableUIContext
 import elan.tweaks.thaumcraft.research.frontend.integration.table.gui.component.*
 import elan.tweaks.thaumcraft.research.frontend.integration.table.gui.component.area.AspectHexMapEditorUIComponent
@@ -94,13 +96,25 @@ object ResearchTableGuiFactory {
           tree = tree)
 
   private fun PortContainer.palletComponents(): List<UIComponent> {
-    val leftAspectPallet =
-        palletComponent(bounds = AspectPools.leftBound, aspectProvider = tree::allOrderLeaning)
-
-    val rightAspectPallet =
-        palletComponent(bounds = AspectPools.rightBound, aspectProvider = tree::allEntropyLeaning)
-
-    return listOf(leftAspectPallet, rightAspectPallet)
+      var leftAspectPallet: AspectPalletUIComponent
+      var rightAspectPallet: AspectPalletUIComponent
+      val maxAspectsPerSide = 48
+      when (ResearchTweaksConfig.client.researchTableSortingOrder) {
+          AspectSortingOptions.SIMPLE_TO_COMPLEX.ordinal -> {
+              leftAspectPallet = palletComponent(bounds = AspectPools.leftBound, aspectProvider = tree::allOrderLeaning)
+              rightAspectPallet = palletComponent(bounds = AspectPools.rightBound, aspectProvider = tree::allEntropyLeaning)
+          }
+          AspectSortingOptions.ALPHABETICAL_FILL_LEFT.ordinal -> {
+              leftAspectPallet = palletComponent(bounds = AspectPools.leftBound, aspectProvider = { allAspects.take(maxAspectsPerSide)})
+              rightAspectPallet = palletComponent(bounds = AspectPools.rightBound, aspectProvider = { allAspects.drop(maxAspectsPerSide)})
+          }
+          AspectSortingOptions.ALPHABETICAL_BALANCED.ordinal -> {
+              leftAspectPallet = palletComponent(bounds = AspectPools.leftBound, aspectProvider = { allAspects.take(allAspects.size / 2)})
+              rightAspectPallet = palletComponent(bounds = AspectPools.rightBound, aspectProvider = { allAspects.drop(allAspects.size / 2)})
+          }
+          else -> throw Exception("unknown config " + AspectSortingOptions.ALPHABETICAL_BALANCED.ordinal)
+      }
+      return listOf(leftAspectPallet, rightAspectPallet)
   }
 
   private fun PortContainer.palletComponent(

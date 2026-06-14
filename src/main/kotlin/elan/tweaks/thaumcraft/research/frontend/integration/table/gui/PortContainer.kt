@@ -12,6 +12,7 @@ import elan.tweaks.thaumcraft.research.frontend.integration.adapters.*
 import elan.tweaks.thaumcraft.research.frontend.integration.table.container.ResearchTableContainerFactory
 import elan.tweaks.thaumcraft.research.frontend.integration.table.gui.textures.ResearchTableInventoryTexture
 import net.minecraft.entity.player.EntityPlayer
+import thaumcraft.api.aspects.Aspect
 import thaumcraft.common.tiles.TileResearchTable
 
 class PortContainer(player: EntityPlayer, table: TileResearchTable) {
@@ -35,6 +36,7 @@ class PortContainer(player: EntityPlayer, table: TileResearchTable) {
       AspectPallet(base = base, pool = pool, combiner = combiner, batchSize = 10)
 
   val tree: AspectsTreePort = AspectTree
+  val allAspects: List<Aspect> = Aspect.aspects.values.sortedBy { it.tag }
 
   val researcher: ResearcherKnowledgePort =
       ResearcherKnowledge(
