@@ -3,10 +3,14 @@ package elan.tweaks.thaumcraft.research.frontend.integration
 import cpw.mods.fml.common.Mod
 import cpw.mods.fml.common.SidedProxy
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent
+import cpw.mods.fml.common.event.FMLPreInitializationEvent
 import cpw.mods.fml.common.network.NetworkRegistry
+import cpw.mods.fml.common.registry.GameRegistry
+import elan.tweaks.config.ResearchTweaksConfig
 import elan.tweaks.thaumcraft.research.frontend.integration.ThaumcraftResearchTweaks.MOD_ID
 import elan.tweaks.thaumcraft.research.frontend.integration.proxies.SingletonInitializer
 import elan.tweaks.thaumcraft.research.frontend.integration.table.ThaumcraftResearchGuiHandler
+import net.minecraftforge.common.config.Configuration
 
 @Mod(
     modid = MOD_ID,
@@ -32,4 +36,8 @@ object ThaumcraftResearchTweaks {
 
     singletonInitializer.initialize()
   }
+    @Mod.EventHandler
+    fun preInit(event: FMLPreInitializationEvent) {
+        ResearchTweaksConfig.loadConfig(Configuration(event.suggestedConfigurationFile))
+    }
 }
