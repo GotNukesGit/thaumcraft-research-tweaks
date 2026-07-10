@@ -14,22 +14,29 @@ import elan.tweaks.thaumcraft.research.frontend.integration.table.gui.dto.Aspect
 import thaumcraft.api.aspects.Aspect
 
 /**
- * Research connection helper.
+ * Research connection helper (bidirectional).
  *
- * When the player hovers over an occupied research hex — either a fixed root (a "research point")
- * or an already-placed node — this highlights every discovered aspect in the side pallets that can
- * legally connect to the hovered aspect, per [AspectsTreePort.areRelated]. The intent is to answer
- * "which of the aspects I have could I place next to continue this connection?" at a glance, without
- * having to remember the full aspect combination tree.
+ * Resolves the aspect currently under the cursor from either place it can live:
+ *  - an occupied research hex in the minigame grid (a fixed root / "research point" or a placed node), or
+ *  - a discovered aspect cell in one of the side pallets ("potential node").
  *
- * Two highlight tiers (both configurable via [ResearchTweaksConfig]):
- *  - usable: connectable and currently available in the pallet -> [ClientConfig.connectionHintColor]
- *  - drained: connectable but currently drained / not yet combined -> [ClientConfig.connectionHintDrainedColor]
- *    (only shown when [ClientConfig.connectionHintShowDrained] is enabled)
+ * Given that hovered aspect, it highlights everything that shares a trait with it
+ * (per [AspectsTreePort.areRelated]) in BOTH areas at once:
+ *  - side-pallet cells whose aspect can connect, and
+ *  - grid hexes whose placed/root aspect can connect.
  *
- * This is a [BackgroundUIComponent] and is registered ahead of the pallet components in the GUI
- * factory, so the glow renders behind the aspect icons (mirroring how node orbs are drawn in the
- * hex map) rather than covering them.
+ * So hovering a placed node shows which pallet aspects you could drop next AND which other
+ * nodes it relates to; hovering a pallet aspect shows which grid nodes it could attach to AND
+ * which other pallet aspects share a component with it.
+ *
+ * Highlight tiers / strength are configurable via [ResearchTweaksConfig]:
+ *  - usable: connectable and available -> [ClientConfig.connectionHintColor], drawn
+ *    [ClientConfig.connectionHintIntensity] times so the glow stacks and reads clearly.
+ *  - drained: connectable but drained / not yet combined -> [ClientConfig.connectionHintDrainedColor]
+ *    (single pass, and only when [ClientConfig.connectionHintShowDrained] is enabled).
+ *
+ * Registered as a [BackgroundUIComponent] ahead of the pallet components so the glow renders
+ * behind the aspect icons rather than covering them.
  */
 class AspectConnectionHintUIComponent(
     private val research: ResearchProcessPort,
@@ -56,29 +63,44 @@ class AspectConnectionHintUIComponent(
 
     val hoveredAspect = hoveredAspectAt(uiMousePosition) ?: return
 
-    palletGrids.forEach { grid -> highlightConnectableCells(grid, hoveredAspect, context) }
+    highlightConnectablePalletCells(hoveredAspect, context)
+    highlightConnectableHexes(hoveredAspect, context)
   }
 
-  /** Aspect under the cursor, but only when hovering an occupied hex (root or placed node). */
+  /**
+   * Aspect under the cursor, resolved from a side pallet cell first, then from an occupied
+   * research hex. Vacant hexes and empty space resolve to null (no hint).
+   */
   private fun hoveredAspectAt(uiMousePosition: VectorXY): Aspect? =
-      when (val hex = hexLayout[uiMousePosition]) {
-        is AspectHex.Occupied -> hex.aspect
-        else -> null
+      palletGrids.firstNotNullOfOrNull { grid -> grid[uiMousePosition] }
+          ?: (hexLayout[uiMousePosition] as? AspectHex.Occupied)?.aspect
+
+  private fun highlightConnectablePalletCells(hoveredAspect: Aspect, context: UIContext) {
+    palletGrids.forEach { grid ->
+      grid.asOriginList().forEach { (cellOrigin, aspect) ->
+        if (!tree.areRelated(hoveredAspect, aspect)) return@forEach
+
+        val drained = pallet.isDrainedOf(aspect)
+        if (drained && !config.connectionHintShowDrained) return@forEach
+
+        val center = cellOrigin + cellCenterOffset
+        if (drained) glow(center, config.connectionHintDrainedColor, passes = 1, context)
+        else glow(center, config.connectionHintColor, config.connectionHintIntensity, context)
       }
-
-  private fun highlightConnectableCells(
-      grid: GridLayout<Aspect>,
-      hoveredAspect: Aspect,
-      context: UIContext
-  ) {
-    grid.asOriginList().forEach { (cellOrigin, aspect) ->
-      if (!tree.areRelated(hoveredAspect, aspect)) return@forEach
-
-      val drained = pallet.isDrainedOf(aspect)
-      if (drained && !config.connectionHintShowDrained) return@forEach
-
-      val color = if (drained) config.connectionHintDrainedColor else config.connectionHintColor
-      context.drawOrb(cellOrigin + cellCenterOffset, color)
     }
+  }
+
+  private fun highlightConnectableHexes(hoveredAspect: Aspect, context: UIContext) {
+    hexLayout.asOriginList().forEach { (_, hex) ->
+      if (hex !is AspectHex.Occupied) return@forEach
+      if (!tree.areRelated(hoveredAspect, hex.aspect)) return@forEach
+
+      glow(hex.uiCenter, config.connectionHintColor, config.connectionHintIntensity, context)
+    }
+  }
+
+  /** Draws the orb glow [passes] times at the same point; stacking additively intensifies it. */
+  private fun glow(center: VectorXY, color: Int, passes: Int, context: UIContext) {
+    repeat(passes.coerceAtLeast(1)) { context.drawOrb(center, color) }
   }
 }
