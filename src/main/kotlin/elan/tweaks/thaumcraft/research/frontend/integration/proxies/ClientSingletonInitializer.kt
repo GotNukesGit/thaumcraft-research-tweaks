@@ -3,6 +3,8 @@ package elan.tweaks.thaumcraft.research.frontend.integration.proxies
 import elan.tweaks.thaumcraft.research.frontend.domain.model.AspectTree
 import elan.tweaks.thaumcraft.research.frontend.integration.ThaumcraftResearchTweaks
 import elan.tweaks.thaumcraft.research.frontend.integration.table.gui.layout.ParchmentHexMapLayout
+import cpw.mods.fml.common.FMLCommonHandler
+import elan.tweaks.config.gui.ClientConfigChangeListener
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -13,5 +15,7 @@ class ClientSingletonInitializer : SingletonInitializer {
     logger.debug("Initialised $aspectTree")
     val parchmentHexMap = ParchmentHexMapLayout
     logger.debug("Initialised $parchmentHexMap")
+    FMLCommonHandler.instance().bus().register(ClientConfigChangeListener)
+    logger.debug("Registered in-game config change listener")
   }
 }
