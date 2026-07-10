@@ -21,11 +21,26 @@ object ResearchTweaksConfig {
                 "1 = ALPHABETICAL_FILL_LEFT - Sorted alphabetically, tries to fill the entire left side before right\n" +
                 "2 = ALPHABETICAL_BALANCED - Sorted alphabetically, left will have the first half of all aspects,\n" +
                 "   right will have the second half\n")
+        client.connectionHintEnabled = config.get("client", "connectionHintEnabled", true,
+            "When hovering an occupied research hex (a root aspect or a placed node), highlight the\n" +
+                "discovered aspects in the side pallets that can legally connect to it, so you can see\n" +
+                "at a glance which aspects you could place next to continue the chain.").boolean
+        client.connectionHintShowDrained = config.get("client", "connectionHintShowDrained", true,
+            "Also (dimly) highlight connectable aspects you have currently drained / not yet combined,\n" +
+                "so you know which aspects are relevant even if you must derive more of them first.").boolean
+        client.connectionHintColor = config.getInt("connectionHintColor", "client", 0xF0E68C, 0x000000, 0xFFFFFF,
+            "RGB color (hex, e.g. F0E68C) of the highlight glow for usable connectable aspects.")
+        client.connectionHintDrainedColor = config.getInt("connectionHintDrainedColor", "client", 0x4D4030, 0x000000, 0xFFFFFF,
+            "RGB color (hex) of the dim highlight for connectable-but-drained aspects (see connectionHintShowDrained).")
         config.save()
     }
 
     class ClientConfig {
         var allowCombiningSameAspect: Boolean = false
         var researchTableSortingOrder: Int = AspectSortingOptions.SIMPLE_TO_COMPLEX.ordinal
+        var connectionHintEnabled: Boolean = true
+        var connectionHintShowDrained: Boolean = true
+        var connectionHintColor: Int = 0xF0E68C
+        var connectionHintDrainedColor: Int = 0x4D4030
     }
 }
