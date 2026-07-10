@@ -32,6 +32,9 @@ object ResearchTweaksConfig {
             "RGB color (hex, e.g. F0E68C) of the highlight glow for usable connectable aspects.")
         client.connectionHintDrainedColor = config.getInt("connectionHintDrainedColor", "client", 0x4D4030, 0x000000, 0xFFFFFF,
             "RGB color (hex) of the dim highlight for connectable-but-drained aspects (see connectionHintShowDrained).")
+        client.connectionHintIntensity = config.getInt("connectionHintIntensity", "client", 3, 1, 8,
+            "How strong the usable-aspect highlight glow is: the glow is drawn this many times and\n" +
+                "stacks, so higher = more pronounced. 1 = subtle, 3 = default, 6+ = very bold.")
         config.save()
     }
 
@@ -40,7 +43,8 @@ object ResearchTweaksConfig {
         var researchTableSortingOrder: Int = AspectSortingOptions.SIMPLE_TO_COMPLEX.ordinal
         var connectionHintEnabled: Boolean = true
         var connectionHintShowDrained: Boolean = true
-        var connectionHintColor: Int = 0xF0E68C
+        var connectionHintColor: Int = 0xFFE44D
         var connectionHintDrainedColor: Int = 0x4D4030
+        var connectionHintIntensity: Int = 3
     }
 }
