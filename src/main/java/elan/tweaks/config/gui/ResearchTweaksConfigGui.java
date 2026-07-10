@@ -1,6 +1,6 @@
 package elan.tweaks.config.gui;
 
-import cpw.mods.fml.client.config.ConfigElement;
+import net.minecraftforge.common.config.ConfigElement;
 import cpw.mods.fml.client.config.GuiConfig;
 import cpw.mods.fml.client.config.IConfigElement;
 import elan.tweaks.config.ResearchTweaksConfig;
