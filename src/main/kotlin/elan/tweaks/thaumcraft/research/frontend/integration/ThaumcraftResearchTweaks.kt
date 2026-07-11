@@ -17,6 +17,7 @@ import net.minecraftforge.common.config.Configuration
     name = "Thaumcraft Research Tweaks",
     version = MODVER,
     guiFactory = "elan.tweaks.config.gui.ResearchTweaksGuiFactory",
+    acceptableRemoteVersions = "*",
     modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter",
     dependencies = "required-after:forgelin;required-after:spongemixins;required-after:Thaumcraft;")
 object ThaumcraftResearchTweaks {
