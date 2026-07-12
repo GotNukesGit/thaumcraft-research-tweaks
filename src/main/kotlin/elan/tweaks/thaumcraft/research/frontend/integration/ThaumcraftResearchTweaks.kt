@@ -12,6 +12,16 @@ import elan.tweaks.thaumcraft.research.frontend.integration.proxies.SingletonIni
 import elan.tweaks.thaumcraft.research.frontend.integration.table.ThaumcraftResearchGuiHandler
 import net.minecraftforge.common.config.Configuration
 
+/**
+ * The upstream research-tweaks version this fork tracks, and the version reported to Forge during the
+ * server handshake. It must match the version the server runs, or the server rejects the connection
+ * on a mod-list mismatch.
+ *
+ * Top-level rather than inside the object below, because an annotation on a class cannot reference a
+ * constant declared inside that same class.
+ */
+const val UPSTREAM_VERSION = "1.4.0"
+
 @Mod(
     modid = MOD_ID,
     name = "Thaumcraft Research Tweaks",
@@ -33,13 +43,6 @@ import net.minecraftforge.common.config.Configuration
 object ThaumcraftResearchTweaks {
 
   const val MOD_ID = "ThaumcraftResearchTweaks"
-
-  /**
-   * The upstream research-tweaks version this fork tracks, and the version reported to Forge during
-   * the server handshake. It must match the version the server is running, or the server will reject
-   * the connection on a mod-list mismatch.
-   */
-  const val UPSTREAM_VERSION = "1.4.0"
 
   @SidedProxy(
       clientSide =
